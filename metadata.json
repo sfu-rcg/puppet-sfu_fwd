@@ -1,0 +1,22 @@
+{
+  "name": "sfu-rcg-sfu_fwd",
+  "version": "0.1.0",
+  "author": "asasfu",
+  "summary": "SFU Firewall for FirewallD",
+  "description": "FirewallD module specific to SFU's needs to utilize the main FirewallD module but with iterations, user friendly functionality, base configurations as well as interfacing abilities.",
+  "license": "Apache 2.0",
+  "source": "https://github.com/sfu-rcg/puppet-sfu_fwd",
+  "project_page": "https://github.com/sfu-rcg/puppet-sfu_fwd",
+  "issues_url": "https://github.com/sfu-rcg/puppet-sfu_fwd/issues",
+  "dependencies": [
+    {
+      "name": "puppetlabs-stdlib",
+      "version_requirement": ">= 1.0.0"
+    },
+    {
+      "name": "sfu-rcg/puppet-firewalld",
+      "version_requirement": ">= 0.2.2"
+    }
+  ]
+}
+
