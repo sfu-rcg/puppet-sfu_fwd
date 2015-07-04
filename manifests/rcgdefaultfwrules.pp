@@ -1,3 +1,6 @@
+# This manifest is NOT to be used at the moment.  Just a proof of concept and not even complete.  
+# Only used if we implemented the ability to add rich_rules outside of the initial zone configuration
+
 class sfu_fwd::rcgdefaultfwrules($trustedIPs_nfs = undef, $trustedIPs_rshd = undef, $trustedIPs_5555 = undef) {
   firewalld::service { 'rshd':
     short       => 'rshd',
