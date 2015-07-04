@@ -79,10 +79,18 @@ def check_rule(rich_rules, address_array_of_hashes)
   destination_array_of_hashes = []
   service_array_of_hashes = []
   address_array_of_hashes = []
+  rich_rule_array = []
   if rich_rules.key?('source')
     if rich_rules['source']['address'].kind_of?(Array) 
       addresscleanhash['source'].delete('address')
       rich_rules['source']['address'].each do |source_address|
+        source_addresshash = { "source" => { "address" => source_address } }
+        source_array_of_hashes << source_addresshash
+      end
+    else 
+      rich_rule_array = rich_rules['source']['address'].delete("[]\\\" ").split(",")
+      addresscleanhash['source'].delete('address')
+      rich_rule_array.each do |source_address|
         source_addresshash = { "source" => { "address" => source_address } }
         source_array_of_hashes << source_addresshash
       end
@@ -95,6 +103,13 @@ def check_rule(rich_rules, address_array_of_hashes)
         destination_addresshash = { "destination" => { "address" => destination_address } }
         destination_array_of_hashes << destination_addresshash
       end
+    else
+      rich_rule_array = rich_rules['destination']['address'].delete("[]\\\" ").split(",")
+      addresscleanhash['destination'].delete('address')
+      rich_rule_array.each do |destination_address|
+        destination_addresshash = { "destination" => { "address" => destination_address } }
+        destination_array_of_hashes << destination_addresshash
+      end
     end
   end
   if rich_rules.key?('service')
@@ -104,12 +119,19 @@ def check_rule(rich_rules, address_array_of_hashes)
         servicehash = { "service" => service }
         service_array_of_hashes << servicehash
       end
+    else
+      rich_rule_array = rich_rules['service'].delete("[]\\\" ").split(",")
+      addresscleanhash.delete('service')
+      rich_rule_array.each do |service|
+        servicehash = { "service" => service }
+        service_array_of_hashes << servicehash
+      end
     end
   end
   address_and_servicehash_array.add_to_array(source_array_of_hashes)
   address_and_servicehash_array.add_to_array(destination_array_of_hashes)
   address_and_servicehash_array.add_to_array(service_array_of_hashes)
-
+  
   producthash = address_and_servicehash_array[0].product(*address_and_servicehash_array[1..address_and_servicehash_array.count])
 
   producthash.each_with_index do |arr_hash, index|
