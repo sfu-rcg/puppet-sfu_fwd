@@ -1,60 +1,130 @@
 class sfu_fwd::rcgdefaultfwrules($trustedIPs_nfs = undef, $trustedIPs_rshd = undef, $trustedIPs_5555 = undef) {
+  firewalld::service { 'rshd':
+    short       => 'rshd',
+    description => 'Remote Shell.',
+    ports       => [
+      { port => '514', protocol => 'tcp' },
+    ],
+  }
+  firewalld::service { 'DataProtector':
+    short       => 'DataProtector',
+    description => 'Data Protector service.',
+    ports       => [
+      { port => '5555', protocol => 'tcp' },
+    ],
+  }
 
-  define trust_these_IPs_rshd() {
-    firewall { "004 accept rshd trusted IPs ${name}":
-      proto   => 'tcp',
-      dport   => '514',
-      action  => 'accept',
-      source  => $name, 
-    }  
-  }
-/*  firewall { '005 deny all remaining untrusted to rshd':
-    proto   => 'tcp',
-    dport   => '514',
-    action  => 'drop',
-  }
-*/  
-  define trust_these_IPs_nfs_tcp() {
-    firewall { "006 accept tcp NFS connections from these trusted IPs ${name}":
-      proto   => 'tcp',
-      action  => 'accept',
-      source  => $name, 
-      dport   => [ '111', '2049', '4001', '4002', '4003', '4004' ],
-    }
-  }  
-  define trust_these_IPs_nfs_udp() {
-    firewall { "007 accept udp NFS connections from these trusted IPs ${name}":
-      proto   => 'udp',
-      action  => 'accept',
-      source  => $name, 
-      dport   => [ '111', '2049', '4001', '4002', '4003', '4004' ],
-    }
-  }  
-  define trust_these_5555() {
-    firewall { "008 accept port 5555 from these trusted IPs ${name}":
-      proto   => 'tcp',
-      action  => 'accept',
-      source  => $name, 
-      dport   => '5555',
-    }
-  }  
-  if $trustedIPs_nfs {
-    validate_array($trustedIPs_nfs)
-    unless $trustedIPs_nfs == [] {
-      trust_these_IPs_nfs_tcp{$trustedIPs_nfs:}
-      trust_these_IPs_nfs_udp{$trustedIPs_nfs:}
+  if $trustedIPs_5555 {
+    $dataprotector =
+    {
+      family      => 'ipv4',
+      source      => {
+        address     => $trustedIPs_5555,
+      },
+      service     => 'DataProtector',
+      action      => {
+        action_type => 'accept',
+      },
     }
   }
   if $trustedIPs_rshd {
-    validate_array($trustedIPs_rshd)
-    unless $trustedIPs_rshd == [] {
-      trust_these_IPs_rshd{$trustedIPs_rshd:}
+    $rshd = 
+    {
+      family      => 'ipv4',
+      source      => {
+        address     => $trustedIPs_rshd,
+      },
+      service     => 'rshd',
+      action      => {
+        action_type => 'accept',
+      },
     }
   }
-  if $trustedIPs_5555 {
-    validate_array($trustedIPs_5555)
-    unless $trustedIPs_5555 == [] {
-      trust_these_5555{$trustedIPs_5555:}
+  if $trustedIPs_nfs {
+    $nfs =
+    [
+      {
+        family      => 'ipv4',
+        source      => {
+          address     => $trustedIPs_nfs,
+        },
+        service     => [ 'ssh', 'vnc-server', 'nfs', 'mountd', 'rpc-bind', ],
+        action      => {
+          action_type => 'accept',
+        },
+      },
+    ]
+  }
+
+#  if $trustedIPs_nfs {
+#    $nfs =
+#    [
+#    {
+#      family      => 'ipv4',
+#      source      => {
+#        address     => $trustedIPs_nfs,
+#      },
+#      service     => 'ssh',
+#      action      => {
+#        action_type => 'accept',
+#      },
+#    },
+#    {
+#      family      => 'ipv4',
+#      source      => {
+#        address     => $trustedIPs_nfs,
+#      },
+#      service     => 'vnc-server',
+#      action      => {
+#        action_type => 'accept',
+#      },
+#    },
+#    {
+#      family      => 'ipv4',
+#      source      => {
+#        address     => $trustedIPs_nfs,
+#      },
+#      service     => 'nfs',
+#      action      => {
+#        action_type => 'accept',
+#      },
+#    },
+#    {
+#      family      => 'ipv4',
+#      source      => {
+#        address     => $trustedIPs_nfs,
+#      },
+#      service     => 'mountd',
+#      action      => {
+#        action_type => 'accept',
+#      },
+#    },
+#    {
+#      family      => 'ipv4',
+#      source      => {
+#        address     => $trustedIPs_nfs,
+#      },
+#      service     => 'rpc-bind',
+#      action      => {
+#        action_type => 'accept',
+#      },
+#    },
+#    ]
+#  }
+
+
+ class { 'sfu_fwd::customzone':
+    firewallhash => {
+      'rcgzone' => {
+        short       => 'rcgzone',
+        description => 'This is a test zone for RCG.',
+        rich_rules  => [
+          $dataprotector,
+          $rshd,
+          $nfs,
+        ],
+      }
     }
   }
+
 }
