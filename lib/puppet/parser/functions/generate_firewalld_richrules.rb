@@ -60,7 +60,7 @@ module Puppet::Parser::Functions
             newhash = newhash.merge(temphash)
       end
 
-      finalhash = { key => newhash }
+      finalhash[key] = newhash
 
     end
     return finalhash
