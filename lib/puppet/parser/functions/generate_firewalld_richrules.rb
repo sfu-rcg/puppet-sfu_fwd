@@ -45,6 +45,10 @@ module Puppet::Parser::Functions
 
 
       orighash = args[0][key]
+      unless orighash['rich_rules']
+        finalhash[key] = orighash
+        next
+      end
       newhash = orighash.dup.delete_if {|key,value| key == 'rich_rules'}
       address_array_of_hashes = []
       temphash = Hash.new
