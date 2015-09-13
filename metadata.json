@@ -10,10 +10,6 @@
   "issues_url": "https://github.com/sfu-rcg/puppet-sfu_fwd/issues",
   "dependencies": [
     {
-      "name": "puppetlabs-stdlib",
-      "version_requirement": ">= 1.0.0"
-    },
-    {
       "name": "sfu-rcg/puppet-firewalld",
       "version_requirement": ">= 0.2.2"
     }
