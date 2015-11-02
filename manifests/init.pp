@@ -16,5 +16,6 @@ class sfu_fwd (
         lockdown        => $lockdown,
         ipv6_rpfilter   => $ipv6_rpfilter,
       }
+    }
   }
 }
